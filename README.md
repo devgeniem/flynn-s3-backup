@@ -1,18 +1,27 @@
-# Flynn backup script
+# Hacky Flynn s3 backup script
 
 This is a docker image which uses minio client to connect into s3 bucket in amazon.
 
-It downloads flynn cluster backup tar file from http api and transfers that into s3.
+It downloads [Flynn](https://flynn.io) cluster backup tar file from http api and transfers it into versioned s3.
 
 ## Usage
 
-### Create and deploy the backup process
+### Create and deploy the backup process as app in Flynn
 ```bash
 $ docker build -t devgeniem/flynn-backup .
 $ flynn create s3-backup --remote="" 
 $ flynn -a s3-backup docker push devgeniem/flynn-backup
 ```
 
+### Create append only s3 bucket and aws iam user
+**Note:** Check that [terraform cli](https://www.terraform.io/) has been installed before this.
+
+```bash
+$ cd terraform
+
+# This creates new bucket and aws iam user credentials for the account that you provide
+$ terraform apply
+```
 
 ### Configure the backup process
 ```bash
@@ -28,8 +37,14 @@ $ flynn -a s3-backup env set \
 	BACKUP_INTERVAL_SECONDS=10800 # Put any interval >1800 here
 ```
 
+### Start the backup process
+```
+$ flynn -a s3-backup scale app=1
+```
+
 ## How to retrieve old files from versioned bucket
-Check that aws commandline tools have been installed before this
+**Note:** Check that [aws commandline tools](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) has been installed before this.
+
 ```bash
 # This outputs json of all versions
 $ aws s3api list-object-versions --bucket your-bucket-name
