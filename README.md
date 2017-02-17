@@ -5,7 +5,9 @@ This is a docker image which uses minio client to connect into s3 bucket in amaz
 It downloads [Flynn](https://flynn.io) cluster backup tar file from http api and transfers it into append-only versioned s3.
 
 Backups will first get uploaded into highly available `STANDARD` zone in s3.
+
 They are transitioned to `STANDARD_IA` after 60 days.
+
 And then transitioned to `GLACIER` after 120 days.
 
 You can decide when AWS expires old backups from `GLACIER`.
