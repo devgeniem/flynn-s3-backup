@@ -28,6 +28,17 @@ $ flynn -a s3-backup env set \
 	BACKUP_INTERVAL_SECONDS=10800 \ # Put any interval >1800 here
 ```
 
+## How to retrieve old files from versioned bucket
+Check that aws commandline tools have been installed before this
+```
+# This outputs json of all versions
+$ aws s3api list-object-versions --bucket your-bucket-name
+
+# This is how you restore older version
+# In this example the version we want to restore is rehtEuCbtlaaJWnP0jfdHMQLkyrBPHG_
+$ aws s3api get-object --bucket your-bucket-name --key backups/flynn-backup.tar --version-id rehtEuCbtlaaJWnP0jfdHMQLkyrBPHG_ flynn-backup.tar
+```
+
 ## Maintainers
 [@onnimonni](https://github.com/onnimonni)
 
