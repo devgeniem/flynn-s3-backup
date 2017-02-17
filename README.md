@@ -12,6 +12,8 @@ And then transitioned to `GLACIER` after 120 days.
 
 You can decide when AWS expires old backups from `GLACIER`.
 
+**Note:**This script will exit when the backup is ready and it counts in the Flynn's ability to spin up new process for the next backup.
+
 ## Usage
 
 ### Create and deploy the backup process as app in Flynn

@@ -48,4 +48,5 @@ mc cp /tmp/flynn-backup.tar s3/${AWS_S3_BUCKET}/backups/flynn-backup.tar --json
 # Remove the backup file
 mc rm /tmp/flynn-backup.tar --json
 
+# Flynn will spin up new backup process to another machine when this exits
 exit 0
