@@ -7,7 +7,7 @@ It downloads flynn cluster backup tar file from http api and transfers that into
 ## Usage
 
 ### Create and deploy the backup process
-```
+```bash
 $ docker build -t devgeniem/flynn-backup .
 $ flynn create s3-backup --remote="" 
 $ flynn -a s3-backup docker push devgeniem/flynn-backup
@@ -15,7 +15,7 @@ $ flynn -a s3-backup docker push devgeniem/flynn-backup
 
 
 ### Configure the backup process
-```
+```bash
 # Get the flynn controller AUTH_KEY which you can use as FLYNN_AUTH_KEY later
 $ flynn -a controller env get AUTH_KEY
 
@@ -25,18 +25,21 @@ $ flynn -a s3-backup env set \
 	AWS_S3_BUCKET=your-bucket-name \
 	AWS_ACCESS_KEY_ID=YYYYYYYYYYYYYYYY \
 	AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXX \
-	BACKUP_INTERVAL_SECONDS=10800 \ # Put any interval >1800 here
+	BACKUP_INTERVAL_SECONDS=10800 # Put any interval >1800 here
 ```
 
 ## How to retrieve old files from versioned bucket
 Check that aws commandline tools have been installed before this
-```
+```bash
 # This outputs json of all versions
 $ aws s3api list-object-versions --bucket your-bucket-name
 
 # This is how you restore older version
 # In this example the version we want to restore is rehtEuCbtlaaJWnP0jfdHMQLkyrBPHG_
-$ aws s3api get-object --bucket your-bucket-name --key backups/flynn-backup.tar --version-id rehtEuCbtlaaJWnP0jfdHMQLkyrBPHG_ flynn-backup.tar
+$ aws s3api get-object --bucket your-bucket-name \
+	--key backups/flynn-backup.tar \
+	--version-id rehtEuCbtlaaJWnP0jfdHMQLkyrBPHG_ \
+	flynn-backup.tar
 ```
 
 ## Maintainers
