@@ -78,7 +78,7 @@ tar -tf /tmp/flynn-backup.tar | cut -d '"' -f 2 | while read file; do
 	if [ "$?" -ne 1 ]; then
 		gunzip -t "/tmp/$file"
 
-		if [[ $? -ne 0 ]]; then
+		if [ $? -ne 0 ]; then
 			echo "[ERROR]: File $file is not a valid gzip file"
 			curl -X POST -H 'Content-type: application/json' \
 				--data "{\"text\":\"Flynn cluster backups: file $file is not a valid gzip file.\"}" \
