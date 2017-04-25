@@ -38,8 +38,8 @@ mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_S
 # sleep $BACKUP_INTERVAL_SECONDS
 
 # Take full backup from flynn
-# curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
-curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.stage.gpilvi.com/backup --verbose
+curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
+# curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.stage.gpilvi.com/backup --verbose
 
 # Check if the tar file is valid
 listing=$(tar -tvf /tmp/flynn-backup.tar)
