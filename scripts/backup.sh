@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 
 ##
 # Somehow cron replaces some environmental things and minio client can't use the
@@ -34,10 +35,11 @@ fi
 mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY S3v4 --json
 
 # Wait for the backup
-sleep $BACKUP_INTERVAL_SECONDS
+# sleep $BACKUP_INTERVAL_SECONDS
 
 # Take full backup from flynn
-curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
+# curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
+curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.stage.gpilvi.com/backup --verbose
 
 # Check if the tar file is valid
 listing=$(tar -tvf /tmp/flynn-backup.tar)
@@ -90,7 +92,7 @@ tar -tf /tmp/flynn-backup.tar | cut -d '"' -f 2 | while read file; do
 done
 
 # Check that the filesize is close enough to the previous
-previous=$(mc ls s3/${AWS_S3_BUCKET}/backups/flynn-backup.tar | awk '{print $4}' | sed -e 's/[^0-9]//g')
+previous=$(mc ls s3/${AWS_S3_BUCKET}/backups/staging/flynn-backup.tar | awk '{print $4}' | sed -e 's/[^0-9]//g')
 let current=$(ls -sh /tmp/flynn-backup.tar | sed -e 's/[^0-9]//g')/1000
 let diff=$current-$previous
 abs=$(echo $diff | tr -d -)
@@ -123,7 +125,7 @@ else
 fi
 
 # Transfer the backup into s3
-transfer=$(mc cp /tmp/flynn-backup.tar s3/${AWS_S3_BUCKET}/backups/flynn-backup.tar --json)
+transfer=$(mc cp /tmp/flynn-backup.tar s3/${AWS_S3_BUCKET}/backups/staging/flynn-backup.tar --json)
 if [ $? -ne 0  ]; then
 	echo "[ERROR]: Transfer to S3 failed"
 	curl -X POST -H 'Content-type: application/json' \
