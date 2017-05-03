@@ -31,6 +31,12 @@ if [ -z "$AWS_S3_BUCKET" ]; then
 	exit 1
 fi
 
+if [ -z "$ENVIRONMENT" ]; then
+	echo "ERROR: ENVIRONMENT needs to be set so that backups can be saved into bucket"
+	sleep 5
+	exit 1
+fi
+
 # Login to s3
 mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY S3v4 --json
 
@@ -39,7 +45,15 @@ mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_S
 
 # Take full backup from flynn
 curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
-# curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.stage.gpilvi.com/backup --verbose
+
+if [ $? -ne 0  ]; then
+	echo "[ERROR]: Curl failed!"
+	curl -X POST -H 'Content-type: application/json' \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): curling the backup file failed.\"}" \
+		$SLACK_URL
+	sleep 5
+	exit 1
+fi
 
 # Check if the tar file is valid
 listing=$(tar -tvf /tmp/flynn-backup.tar)
@@ -47,7 +61,7 @@ listing=$(tar -tvf /tmp/flynn-backup.tar)
 if [ $? -ne 0  ]; then
 	echo "[ERROR]: Tar file is not valid!"
 	curl -X POST -H 'Content-type: application/json' \
-		--data "{\"text\":\"Flynn cluster backups: downloaded tar file is not valid.\"}" \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): downloaded tar file is not valid.\"}" \
 		$SLACK_URL
 	sleep 5
 	exit 1
@@ -62,7 +76,7 @@ for file in ${files}; do
 	if [ $? -ne 0 ]; then
 		echo "[ERROR]: File $file is missing from the tar archive"
 		curl -X POST -H 'Content-type: application/json' \
-			--data "{\"text\":\"Flynn cluster backups: file $file is missing from the tar archive.\"}" \
+			--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): file $file is missing from the tar archive.\"}" \
 			$SLACK_URL
 		sleep 5
 		exit 1
@@ -83,7 +97,7 @@ tar -tf /tmp/flynn-backup.tar | cut -d '"' -f 2 | while read file; do
 		if [ $? -ne 0 ]; then
 			echo "[ERROR]: File $file is not a valid gzip file"
 			curl -X POST -H 'Content-type: application/json' \
-				--data "{\"text\":\"Flynn cluster backups: file $file is not a valid gzip file.\"}" \
+				--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): file $file is not a valid gzip file.\"}" \
 				$SLACK_URL
 			sleep 5
 			exit 1
@@ -101,7 +115,7 @@ let percentage=$abs*100/$previous
 if [ $percentage -gt 20 ]; then
 	echo "[NOTICE]: The size of the new backup file differs more than 20% from the previous one"
 	curl -X POST -H 'Content-type: application/json' \
-		--data "{\"text\":\"Flynn cluster backups: The size of the new backup file differs more than 20% from the previous one.\"}" \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): The size of the new backup file differs more than 20% from the previous one.\"}" \
 		$SLACK_URL
 	sleep 5
 fi
@@ -125,11 +139,11 @@ else
 fi
 
 # Transfer the backup into s3
-transfer=$(mc cp /tmp/flynn-backup.tar s3/${AWS_S3_BUCKET}/backups/staging/flynn-backup.tar --json)
+transfer=$(mc cp /tmp/flynn-backup.tar s3/${AWS_S3_BUCKET}/backups/${ENVIRONMENT}/flynn-backup.tar --json)
 if [ $? -ne 0  ]; then
 	echo "[ERROR]: Transfer to S3 failed"
 	curl -X POST -H 'Content-type: application/json' \
-		--data "{\"text\":\"Flynn cluster backups: Transfer to S3 failed: $transfer\"}" \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): Transfer to S3 failed: $transfer\"}" \
 		$SLACK_URL
 	sleep 5
 	exit 1
