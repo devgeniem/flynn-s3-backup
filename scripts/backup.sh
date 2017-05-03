@@ -41,7 +41,7 @@ fi
 mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY S3v4 --json
 
 # Wait for the backup
-# sleep $BACKUP_INTERVAL_SECONDS
+sleep $BACKUP_INTERVAL_SECONDS
 
 # Take full backup from flynn
 curl -s -u :$FLYNN_AUTH_KEY -o /tmp/flynn-backup.tar http://controller.discoverd/backup
