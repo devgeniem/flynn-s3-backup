@@ -6,6 +6,10 @@ set -x
 # s3 host we configured so just use sleep instead
 ##
 
+curl -X POST -H 'Content-type: application/json' \
+	--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT) started\"}" \
+	$SLACK_STATUS_URL
+
 # Check requirements
 if [ -z "$FLYNN_AUTH_KEY" ]; then
 	echo "ERROR: FLYNN_AUTH_KEY must be set so that we can connect to flynn"
@@ -147,6 +151,14 @@ if [ $? -ne 0  ]; then
 		$SLACK_URL
 	sleep 5
 	exit 1
+fi
+
+if [ -z "$SLACK_STATUS_URL" ]; then
+	echo "ERROR: SLACK_STATUS_URL needs to be set so that status checks can be posted in Slack."
+else
+	curl -X POST -H 'Content-type: application/json' \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT) completed\"}" \
+		$SLACK_STATUS_URL
 fi
 
 # Remove the temp files
