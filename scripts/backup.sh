@@ -117,9 +117,9 @@ abs=$(echo $diff | tr -d -)
 let percentage=$abs*100/$previous
 
 if [ $percentage -gt 20 ]; then
-	echo "[NOTICE]: The size of the new backup file differs more than 20% from the previous one"
+	echo "[NOTICE]: The size of the new backup file [${current}] differs ${percentage}% from the previous one [${previous}]"
 	curl -X POST -H 'Content-type: application/json' \
-		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): The size of the new backup file differs more than 20% from the previous one.\"}" \
+		--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): The size of the new backup file [${current}] differs ${percentage}% from the previous one [${previous}].\"}" \
 		$SLACK_URL
 	sleep 5
 fi
