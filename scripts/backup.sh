@@ -110,7 +110,7 @@ tar -tf /tmp/flynn-backup.tar | cut -d '"' -f 2 | while read file; do
 done
 
 # Check that the filesize is close enough to the previous
-previous=$(mc ls s3/${AWS_S3_BUCKET}/backups/staging/flynn-backup.tar | awk '{print $4}' | sed -e 's/[^0-9]//g')
+previous=$(mc ls s3/${AWS_S3_BUCKET}/backups/${ENVIRONMENT}/flynn-backup.tar | awk '{print $4}' | sed -e 's/[^0-9]//g')
 let current=$(ls -sh /tmp/flynn-backup.tar | sed -e 's/[^0-9]//g')/1000
 let diff=$current-$previous
 abs=$(echo $diff | tr -d -)
