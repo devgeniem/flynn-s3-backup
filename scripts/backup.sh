@@ -75,15 +75,17 @@ fi
 files="mysql.sql.gz postgres.sql.gz mongodb.archive.gz flynn.json"
 
 for file in ${files}; do
-	echo $listing | grep "$file"
+	if [[ $ENVIRONMENT != "seamk" || $file != "mongodb.archive.gz" ]]; then
+		echo $listing | grep "$file"
 
-	if [ $? -ne 0 ]; then
-		echo "[ERROR]: File $file is missing from the tar archive"
-		curl -X POST -H 'Content-type: application/json' \
-			--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): file $file is missing from the tar archive.\"}" \
-			$SLACK_URL
-		sleep 5
-		exit 1
+		if [ $? -ne 0 ]; then
+			echo "[ERROR]: File $file is missing from the tar archive"
+			curl -X POST -H 'Content-type: application/json' \
+				--data "{\"text\":\"Flynn cluster backups ($ENVIRONMENT): file $file is missing from the tar archive.\"}" \
+				$SLACK_URL
+			sleep 5
+			exit 1
+		fi
 	fi
 done
 
