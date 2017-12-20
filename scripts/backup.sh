@@ -72,7 +72,7 @@ if [ $? -ne 0  ]; then
 fi
 
 # Check that all necessary files are present
-files="mysql.sql.gz postgres.sql.gz mongodb.archive.gz flynn.json"
+files="postgres.sql.gz mongodb.archive.gz flynn.json"
 
 for file in ${files}; do
 	if [[ $ENVIRONMENT != "seamk" || $file != "mongodb.archive.gz" ]]; then
