@@ -42,7 +42,7 @@ if [ -z "$ENVIRONMENT" ]; then
 fi
 
 # Login to s3
-mc --quiet config host add s3 https://s3.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY S3v4 --json
+mc --quiet config host add s3 https://s3.eu-west-1.amazonaws.com $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY S3v4 --json
 
 # Wait for the backup
 sleep $BACKUP_INTERVAL_SECONDS
